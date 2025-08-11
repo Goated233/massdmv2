@@ -19,6 +19,7 @@ Discord bot that DMs staff members a configurable reminder message. Built with `
    TOKEN=your_bot_token
    MANAGER_ROLE_ID=1234567890
    ```
+   Alternatively, set `HARDCODED_TOKEN` in `main.py` to bypass `.env` usage.
 4. Enable **Guild Members Intent** in the [Discord developer portal](https://discord.com/developers/applications) for your bot.
 5. Invite the bot using a URL with `bot` and `applications.commands` scopes. Example:
    ```
@@ -41,8 +42,18 @@ All commands are under `/staff`:
 - `/staff setrole <role>` – set staff role
 - `/staff setmessage <text>` – set DM message (supports `{guild}`, `{user}`, `{now_iso}`)
 - `/staff remind now` – send reminders immediately
+- `/staff remind user <member>` – DM a specific user
+- `/staff remind channel <channel>` – post reminder in a channel
+- `/staff remind preview` – preview the reminder message
 - `/staff status` – show current configuration
 - `/staff test` – DM caller preview
+- `/staff ping` – show bot latency
+- `/staff setmanager <role>` – set manager role
+- `/staff getmanager` – show manager role
+- `/staff showrole` – show staff role
+- `/staff liststaff` – list staff members
+- `/staff stats` – show reminder statistics
+- `/staff version` – show bot version
 - `/staff schedule set <cron>` – schedule daily reminders
 - `/staff schedule clear` – remove schedule
 
