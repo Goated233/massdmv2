@@ -1,21 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
-
 import discord
 
 from config import GuildConfig
-
-
-def build_reminder_embed(guild_name: str, message: str) -> discord.Embed:
-    embed = discord.Embed(
-        title="Staff Reminder",
-        description=message,
-        timestamp=datetime.utcnow(),
-    )
-    embed.set_footer(text=guild_name)
-    return embed
-
 
 def build_status_embed(cfg: GuildConfig, guild: discord.Guild, queued: int) -> discord.Embed:
     role = guild.get_role(cfg.staff_role_id) if cfg.staff_role_id else None

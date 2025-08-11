@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import time
-from typing import Callable, Iterable, Tuple
+from typing import Callable, Tuple
 
 import discord
 
 from config import GuildConfig, render_message
-from embeds import build_reminder_embed
 
 
 class RateLimiter:
@@ -40,16 +39,15 @@ class DMQueue:
         for member in members:
             await self.rate_limiter.wait()
             msg = render_message(cfg.reminder_message, guild.name, member.display_name)
-            embed = build_reminder_embed(guild.name, msg)
             try:
-                await member.send(embed=embed)
+                await member.send(msg)
                 await self.db.log_send(guild.id, member.id, "sent", None)
                 sent += 1
             except discord.HTTPException as e:
                 if e.status == 429 and getattr(e, "retry_after", None):
                     await asyncio.sleep(e.retry_after)
                     try:
-                        await member.send(embed=embed)
+                        await member.send(msg)
                         await self.db.log_send(guild.id, member.id, "sent", None)
                         sent += 1
                         continue
