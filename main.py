@@ -19,6 +19,7 @@ BOT_VERSION = "1.0.0"
 intents = discord.Intents.none()
 intents.guilds = True
 intents.members = True
+intents.message_content = True
 
 
 class StaffBot(commands.Bot):
