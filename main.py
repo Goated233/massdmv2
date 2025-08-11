@@ -57,20 +57,6 @@ bot_config = EnvConfig()
 bot = StaffBot(bot_config)
 
 
-@bot.group(name="staffdm")
-@commands.guild_only()
-async def staffdm_group(ctx: commands.Context) -> None:
-    if ctx.invoked_subcommand is None:
-        await ctx.send(embed=discord.Embed(description="Invalid subcommand"))
-
-
-@staffdm_group.command(name="logchannel")
-@manager_only_ctx()
-async def staffdm_logchannel(ctx: commands.Context, channel: discord.TextChannel) -> None:
-    cfg = await bot.db.update_guild_config(ctx.guild.id, log_channel_id=channel.id)
-    await ctx.send(embed=discord.Embed(description=f"Log channel set to {channel.mention}"))
-
-
 def manager_only():
     async def predicate(inter: discord.Interaction) -> bool:
         if inter.user.guild_permissions.administrator:
@@ -95,6 +81,20 @@ def manager_only_ctx():
         raise commands.CheckFailure("Not authorized")
 
     return commands.check(predicate)
+
+
+@bot.group(name="staffdm")
+@commands.guild_only()
+async def staffdm_group(ctx: commands.Context) -> None:
+    if ctx.invoked_subcommand is None:
+        await ctx.send(embed=discord.Embed(description="Invalid subcommand"))
+
+
+@staffdm_group.command(name="logchannel")
+@manager_only_ctx()
+async def staffdm_logchannel(ctx: commands.Context, channel: discord.TextChannel) -> None:
+    cfg = await bot.db.update_guild_config(ctx.guild.id, log_channel_id=channel.id)
+    await ctx.send(embed=discord.Embed(description=f"Log channel set to {channel.mention}"))
 
 
 staff_group = app_commands.Group(name="staff", description="Staff reminders")
