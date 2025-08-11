@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -39,4 +39,6 @@ class Scheduler:
             return
         cfg = await self.db.get_guild_config(guild_id)
         await self.dm_queue.send(guild, cfg)
-        await self.db.update_guild_config(guild_id, last_sent_at=datetime.utcnow().isoformat())
+        await self.db.update_guild_config(
+            guild_id, last_sent_at=datetime.now(UTC).isoformat()
+        )

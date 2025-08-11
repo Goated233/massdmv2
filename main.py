@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, UTC
 
 import discord
 from discord import app_commands
@@ -157,11 +157,14 @@ remind_group = app_commands.Group(name="remind", description="Reminder actions")
 @remind_group.command(name="now", description="Send reminders now")
 @manager_only()
 async def remind_now(inter: discord.Interaction) -> None:
+    await inter.response.defer(ephemeral=True)
     cfg = await bot.db.get_guild_config(inter.guild.id)
     total, sent, failed, eta = await bot.dm_queue.send(inter.guild, cfg)
-    await bot.db.update_guild_config(inter.guild.id, last_sent_at=datetime.utcnow().isoformat())
+    await bot.db.update_guild_config(
+        inter.guild.id, last_sent_at=datetime.now(UTC).isoformat()
+    )
     embed = build_summary_embed(total, sent, failed, eta)
-    await inter.response.send_message(embed=embed, ephemeral=True)
+    await inter.followup.send(embed=embed, ephemeral=True)
 
 
 @remind_group.command(name="user", description="Send reminder to a user")
