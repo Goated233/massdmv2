@@ -9,7 +9,7 @@ from discord.ext import commands
 from config import EnvConfig
 from db import Database
 from dm_queue import DMQueue
-from embeds import build_reminder_embed, build_status_embed, build_summary_embed
+from embeds import build_status_embed, build_summary_embed
 from scheduler import Scheduler
 
 # Optionally hardcode the bot token here. If None, token from `.env` is used.
@@ -169,8 +169,7 @@ async def remind_now(inter: discord.Interaction) -> None:
 async def remind_user(inter: discord.Interaction, member: discord.Member) -> None:
     cfg = await bot.db.get_guild_config(inter.guild.id)
     message = cfg.reminder_message.replace("\\n", "\n")
-    embed = build_reminder_embed(inter.guild.name, message)
-    await member.send(embed=embed)
+    await member.send(message)
     await inter.response.send_message(embed=discord.Embed(description="Sent"), ephemeral=True)
 
 
@@ -181,8 +180,7 @@ async def remind_channel(
 ) -> None:
     cfg = await bot.db.get_guild_config(inter.guild.id)
     message = cfg.reminder_message.replace("\\n", "\n")
-    embed = build_reminder_embed(inter.guild.name, message)
-    await channel.send(embed=embed)
+    await channel.send(message)
     await inter.response.send_message(embed=discord.Embed(description="Sent"), ephemeral=True)
 
 
@@ -190,8 +188,7 @@ async def remind_channel(
 async def remind_preview(inter: discord.Interaction) -> None:
     cfg = await bot.db.get_guild_config(inter.guild.id)
     message = cfg.reminder_message.replace("\\n", "\n")
-    embed = build_reminder_embed(inter.guild.name, message)
-    await inter.response.send_message(embed=embed, ephemeral=True)
+    await inter.response.send_message(message, ephemeral=True)
 
 
 @staff_group.command(name="status", description="Show current status")
@@ -207,8 +204,7 @@ async def status(inter: discord.Interaction) -> None:
 async def test(inter: discord.Interaction) -> None:
     cfg = await bot.db.get_guild_config(inter.guild.id)
     message = cfg.reminder_message.replace("\\n", "\n")
-    embed = build_reminder_embed(inter.guild.name, message)
-    await inter.user.send(embed=embed)
+    await inter.user.send(message)
     await inter.response.send_message(embed=discord.Embed(description="Sent"), ephemeral=True)
 
 
