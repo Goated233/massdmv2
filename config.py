@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional
 
 from pydantic import BaseSettings
@@ -34,5 +34,5 @@ class GuildConfig:
 
 def render_message(template: str, guild: str, user: str) -> str:
     """Render placeholders for guild, user and current ISO time."""
-    now_iso = datetime.utcnow().isoformat()
+    now_iso = datetime.now(UTC).isoformat()
     return template.format(guild=guild, user=user, now_iso=now_iso)
