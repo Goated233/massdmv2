@@ -10,10 +10,14 @@ DEFAULT_MESSAGE = "Please review mod queue and tickets."
 
 
 class EnvConfig(BaseSettings):
-    """Environment configuration loaded from .env."""
+    """Environment configuration loaded from .env.
 
-    token: str
-    manager_role_id: int
+    The values are optional so the bot can start with a hardcoded token or
+    without a manager role configured. Missing values default to ``None``.
+    """
+
+    token: str | None = None
+    manager_role_id: int | None = None
 
     class Config:
         env_file = ".env"

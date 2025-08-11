@@ -56,7 +56,8 @@ def manager_only():
     async def predicate(inter: discord.Interaction) -> bool:
         if inter.user.guild_permissions.administrator:
             return True
-        role = inter.guild.get_role(bot_config.manager_role_id)
+        role_id = bot_config.manager_role_id
+        role = inter.guild.get_role(role_id) if role_id else None
         if role and role in inter.user.roles:
             return True
         raise app_commands.CheckFailure("Not authorized")
@@ -104,7 +105,8 @@ async def setmanager(inter: discord.Interaction, role: discord.Role) -> None:
 
 @staff_group.command(name="getmanager", description="Show manager role")
 async def getmanager(inter: discord.Interaction) -> None:
-    role = inter.guild.get_role(bot_config.manager_role_id)
+    role_id = bot_config.manager_role_id
+    role = inter.guild.get_role(role_id) if role_id else None
     msg = role.mention if role else "No manager role set"
     await inter.response.send_message(msg, ephemeral=True)
 
