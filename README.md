@@ -20,7 +20,7 @@ Discord bot that DMs staff members a configurable reminder message. Built with `
    MANAGER_ROLE_ID=1234567890  # optional manager role
    ```
    If you prefer, set `HARDCODED_TOKEN` in `main.py` to bypass `.env` usage.
-4. Enable **Guild Members Intent** in the [Discord developer portal](https://discord.com/developers/applications) for your bot.
+4. Enable **Guild Members** and **Message Content** intents in the [Discord developer portal](https://discord.com/developers/applications) for your bot.
 5. Invite the bot using a URL with `bot` and `applications.commands` scopes. Example:
    ```
    https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot%20applications.commands&permissions=274877908992
