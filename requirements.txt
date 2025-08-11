@@ -1,0 +1,5 @@
+discord.py>=2.3
+aiosqlite
+pydantic
+apscheduler
+pytest
