@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, UTC
+import logging
 
 import discord
 from discord import app_commands
@@ -21,10 +22,13 @@ intents.guilds = True
 intents.members = True
 intents.message_content = True
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 class StaffBot(commands.Bot):
     def __init__(self, config: EnvConfig) -> None:
-        super().__init__(command_prefix="!", intents=intents)
+        super().__init__(command_prefix=",", intents=intents)
         self.config = config
         self.db = Database()
         self.dm_queue = DMQueue(self.db)
@@ -40,7 +44,7 @@ class StaffBot(commands.Bot):
         await self.tree.sync()
 
     async def on_ready(self) -> None:
-        print(f"Logged in as {self.user} ({self.user.id})")
+        logger.info("Logged in as %s (%s)", self.user, self.user.id)
 
     async def on_guild_join(self, guild: discord.Guild) -> None:
         await self.db.get_guild_config(guild.id)
@@ -51,6 +55,20 @@ class StaffBot(commands.Bot):
 
 bot_config = EnvConfig()
 bot = StaffBot(bot_config)
+
+
+@bot.group(name="staffdm")
+@commands.guild_only()
+async def staffdm_group(ctx: commands.Context) -> None:
+    if ctx.invoked_subcommand is None:
+        await ctx.send(embed=discord.Embed(description="Invalid subcommand"))
+
+
+@staffdm_group.command(name="logchannel")
+@manager_only_ctx()
+async def staffdm_logchannel(ctx: commands.Context, channel: discord.TextChannel) -> None:
+    cfg = await bot.db.update_guild_config(ctx.guild.id, log_channel_id=channel.id)
+    await ctx.send(embed=discord.Embed(description=f"Log channel set to {channel.mention}"))
 
 
 def manager_only():
@@ -64,6 +82,19 @@ def manager_only():
         raise app_commands.CheckFailure("Not authorized")
 
     return app_commands.check(predicate)
+
+
+def manager_only_ctx():
+    async def predicate(ctx: commands.Context) -> bool:
+        if ctx.author.guild_permissions.administrator:
+            return True
+        role_id = bot_config.manager_role_id
+        role = ctx.guild.get_role(role_id) if role_id else None
+        if role and role in ctx.author.roles:
+            return True
+        raise commands.CheckFailure("Not authorized")
+
+    return commands.check(predicate)
 
 
 staff_group = app_commands.Group(name="staff", description="Staff reminders")
@@ -174,6 +205,7 @@ async def remind_user(inter: discord.Interaction, member: discord.Member) -> Non
     cfg = await bot.db.get_guild_config(inter.guild.id)
     message = cfg.reminder_message.replace("\\n", "\n")
     await member.send(message)
+    await bot.dm_queue.log(inter.guild, cfg, f"{member} ({member.id})", "sent", message)
     await inter.response.send_message(embed=discord.Embed(description="Sent"), ephemeral=True)
 
 
@@ -185,6 +217,13 @@ async def remind_channel(
     cfg = await bot.db.get_guild_config(inter.guild.id)
     message = cfg.reminder_message.replace("\\n", "\n")
     await channel.send(message)
+    await bot.dm_queue.log(
+        inter.guild,
+        cfg,
+        f"Channel {channel} ({channel.id})",
+        "sent",
+        message,
+    )
     await inter.response.send_message(embed=discord.Embed(description="Sent"), ephemeral=True)
 
 
@@ -209,6 +248,7 @@ async def test(inter: discord.Interaction) -> None:
     cfg = await bot.db.get_guild_config(inter.guild.id)
     message = cfg.reminder_message.replace("\\n", "\n")
     await inter.user.send(message)
+    await bot.dm_queue.log(inter.guild, cfg, f"{inter.user} ({inter.user.id})", "sent", message)
     await inter.response.send_message(embed=discord.Embed(description="Sent"), ephemeral=True)
 
 
@@ -242,6 +282,14 @@ async def on_app_command_error(inter: discord.Interaction, error: app_commands.A
             await inter.followup.send(embed=discord.Embed(description="Not authorized"), ephemeral=True)
         else:
             await inter.response.send_message(embed=discord.Embed(description="Not authorized"), ephemeral=True)
+    else:
+        raise error
+
+
+@bot.event
+async def on_command_error(ctx: commands.Context, error: commands.CommandError):
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send(embed=discord.Embed(description="Not authorized"))
     else:
         raise error
 
