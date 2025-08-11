@@ -20,7 +20,8 @@ class Database:
             staff_role_id INTEGER,
             reminder_message TEXT,
             schedule_cron TEXT,
-            last_sent_at TEXT
+            last_sent_at TEXT,
+            log_channel_id INTEGER
         )"""
         )
         await self.conn.execute(
@@ -45,7 +46,7 @@ class Database:
     async def get_guild_config(self, guild_id: int) -> GuildConfig:
         assert self.conn is not None
         async with self.conn.execute(
-            "SELECT staff_role_id, reminder_message, schedule_cron, last_sent_at FROM guild_config WHERE guild_id=?",
+            "SELECT staff_role_id, reminder_message, schedule_cron, last_sent_at, log_channel_id FROM guild_config WHERE guild_id=?",
             (guild_id,),
         ) as cur:
             row = await cur.fetchone()
@@ -56,6 +57,7 @@ class Database:
                 reminder_message=row[1] or DEFAULT_MESSAGE,
                 schedule_cron=row[2],
                 last_sent_at=row[3],
+                log_channel_id=row[4],
             )
         cfg = GuildConfig(guild_id=guild_id)
         await self.upsert_guild_config(cfg)
@@ -64,13 +66,14 @@ class Database:
     async def upsert_guild_config(self, cfg: GuildConfig) -> None:
         assert self.conn is not None
         await self.conn.execute(
-            """INSERT INTO guild_config(guild_id, staff_role_id, reminder_message, schedule_cron, last_sent_at)
-            VALUES(?,?,?,?,?)
+            """INSERT INTO guild_config(guild_id, staff_role_id, reminder_message, schedule_cron, last_sent_at, log_channel_id)
+            VALUES(?,?,?,?,?,?)
             ON CONFLICT(guild_id) DO UPDATE SET
                 staff_role_id=excluded.staff_role_id,
                 reminder_message=excluded.reminder_message,
                 schedule_cron=excluded.schedule_cron,
-                last_sent_at=excluded.last_sent_at
+                last_sent_at=excluded.last_sent_at,
+                log_channel_id=excluded.log_channel_id
             """,
             (
                 cfg.guild_id,
@@ -78,6 +81,7 @@ class Database:
                 cfg.reminder_message,
                 cfg.schedule_cron,
                 cfg.last_sent_at,
+                cfg.log_channel_id,
             ),
         )
         await self.conn.commit()

@@ -30,6 +30,7 @@ class GuildConfig:
     reminder_message: str = DEFAULT_MESSAGE
     schedule_cron: Optional[str] = None
     last_sent_at: Optional[str] = None  # ISO timestamp
+    log_channel_id: Optional[int] = None
 
 
 def render_message(template: str, guild: str, user: str) -> str:
