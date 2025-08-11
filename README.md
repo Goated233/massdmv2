@@ -14,12 +14,12 @@ Discord bot that DMs staff members a configurable reminder message. Built with `
    ```bash
    pip install -r requirements.txt
    ```
-3. Create a `.env` file:
+3. Create a `.env` file (optional):
    ```env
-   TOKEN=your_bot_token
-   MANAGER_ROLE_ID=1234567890
+   TOKEN=your_bot_token  # optional if `HARDCODED_TOKEN` in `main.py` is set
+   MANAGER_ROLE_ID=1234567890  # optional manager role
    ```
-   Alternatively, set `HARDCODED_TOKEN` in `main.py` to bypass `.env` usage.
+   If you prefer, set `HARDCODED_TOKEN` in `main.py` to bypass `.env` usage.
 4. Enable **Guild Members Intent** in the [Discord developer portal](https://discord.com/developers/applications) for your bot.
 5. Invite the bot using a URL with `bot` and `applications.commands` scopes. Example:
    ```
