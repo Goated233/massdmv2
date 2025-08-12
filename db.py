@@ -24,6 +24,12 @@ class Database:
             log_channel_id INTEGER
         )"""
         )
+        async with self.conn.execute("PRAGMA table_info(guild_config)") as cur:
+            cols = [row[1] for row in await cur.fetchall()]
+        if "log_channel_id" not in cols:
+            await self.conn.execute(
+                "ALTER TABLE guild_config ADD COLUMN log_channel_id INTEGER"
+            )
         await self.conn.execute(
             """CREATE TABLE IF NOT EXISTS send_log(
             id INTEGER PRIMARY KEY AUTOINCREMENT,

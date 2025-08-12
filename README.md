@@ -41,6 +41,7 @@ pytest
 All commands are under `/staff`:
 - `/staff setrole <role>` – set staff role
 - `/staff setmessage <text>` – set DM message (supports `{guild}`, `{user}`, `{now_iso}`)
+- `/staff setlogchannel <channel>` – set channel where send logs will be posted
 - `/staff remind now` – send reminders immediately
 - `/staff remind user <member>` – DM a specific user
 - `/staff remind channel <channel>` – post reminder in a channel
