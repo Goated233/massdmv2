@@ -120,6 +120,15 @@ async def setmessage(inter: discord.Interaction, text: str) -> None:
     await inter.response.send_message(embed=embed, ephemeral=True)
 
 
+@staff_group.command(name="setlogchannel", description="Set log channel")
+@manager_only()
+async def setlogchannel(inter: discord.Interaction, channel: discord.TextChannel) -> None:
+    await bot.db.update_guild_config(inter.guild.id, log_channel_id=channel.id)
+    await inter.response.send_message(
+        f"Log channel set to {channel.mention}", ephemeral=True
+    )
+
+
 @staff_group.command(name="ping", description="Show bot latency")
 async def ping(inter: discord.Interaction) -> None:
     latency = round(bot.latency * 1000)
